@@ -1,0 +1,12 @@
+name: Lab3
+title: Lab3
+username:
+account: filipe-soares
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3752916
+bundleId: 4317012
+url: https://filipe-soares.shinyapps.io/Lab3/
+when: 1615222294.1936
+asMultiple: FALSE
+asStatic: FALSE

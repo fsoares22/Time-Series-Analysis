@@ -1,0 +1,629 @@
+---
+title: "Assignment 3"
+author: "Samia Banafunzi, Mercy Maina, Nachiket Patil, Filipe Soares"
+date: "07/03/2021"
+output: pdf_document
+---
+
+```{r}
+setwd('C:/Users/filip/Desktop')
+library(quantmod)
+library(lubridate)
+library(tseries)
+library(Metrics)
+library(ggplot2)
+library(timeSeries)
+library(forecast)
+library(plotly)
+library(prophet)
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+# Import Data
+apple = read.csv('AAPL.csv')
+amgen = read.csv('AMGN.csv')
+comcast = read.csv('CMCSA.csv')
+gilead = read.csv('GILD.csv')
+microsoft = read.csv('MSFT.csv')
+netflix = read.csv('NFLX.csv')
+```
+
+```{r}
+# Convert to Date
+
+apple$Date <- as.Date(apple$Date, format= "%Y-%m-%d")
+amgen$Date <- as.Date(amgen$Date, format= "%Y-%m-%d")
+comcast$Date <- as.Date(comcast$Date, format= "%Y-%m-%d")
+gilead$Date <- as.Date(gilead$Date, format= "%Y-%m-%d")
+microsoft$Date <- as.Date(microsoft$Date, format= "%Y-%m-%d")
+netflix$Date <- as.Date(netflix$Date, format= "%Y-%m-%d")
+
+```
+
+```{r}
+# Drop all dates before January 1 2015
+
+app_drop <- subset(apple, Date>= "2015-01-01")
+amg_drop <- subset(amgen, Date>= "2015-01-01")
+com_drop <- subset(comcast, Date>= "2015-01-01")
+gil_drop <- subset(gilead, Date>= "2015-01-01")
+mic_drop <- subset(microsoft, Date>= "2015-01-01")
+net_drop <- subset(netflix, Date>= "2015-01-01")
+```
+
+```{r}
+# Plot Volume and Closing Price
+ggplot(data=app_drop, aes(x=Date, y=Volume)) +
+  geom_line(color="red") + ggtitle("Apple Volume")
+ggplot(data=app_drop, aes(x=Date, y=Close)) +
+  geom_line(color="blue") + ggtitle("Apple Closing Price")
+```
+```{r}
+ggplot(data=amg_drop, aes(x=Date, y=Volume)) +
+  geom_line(color="red") + ggtitle("Amgen Volume")
+ggplot(data=amg_drop, aes(x=Date, y=Close)) +
+  geom_line(color="blue") + ggtitle("Amgen Closing Price")
+```
+
+```{r}
+ggplot(data=com_drop, aes(x=Date, y=Volume)) +
+  geom_line(color="red") + ggtitle("Comcast Volume")
+ggplot(data=com_drop, aes(x=Date, y=Close)) +
+  geom_line(color="blue") + ggtitle("Comcast Closing Price")
+```
+
+```{r}
+ggplot(data=gil_drop, aes(x=Date, y=Volume)) +
+  geom_line(color="red") + ggtitle("Gilead Volume")
+ggplot(data=gil_drop, aes(x=Date, y=Close)) +
+  geom_line(color="blue") + ggtitle("Gilead Closing Price")
+```
+
+
+```{r}
+ggplot(data=mic_drop, aes(x=Date, y=Volume)) +
+  geom_line(color="red") + ggtitle("Microsoft Volume")
+ggplot(data=mic_drop, aes(x=Date, y=Close)) +
+  geom_line(color="blue") + ggtitle("Microsoft Closing Price")
+```
+
+```{r}
+ggplot(data=net_drop, aes(x=Date, y=Volume)) +
+  geom_line(color="red") + ggtitle("Netflix Volume")
+ggplot(data=net_drop, aes(x=Date, y=Close)) +
+  geom_line(color="blue") + ggtitle("Netflix Closing Price")
+```
+```{r}
+# APPLE STOCK
+apple_price <- ts(apple$Close, start = c(2015,1), end = c(2020,4), frequency = 12)
+plot(apple_price, type = "l")
+
+plot(diff(apple_price), type = "l", main = "Original data")
+```
+```{r}
+# Decompose Apple Data
+plot(decompose(apple_price))
+```
+
+```{r}
+# Convert to ln format
+apple_lnprice <- log(apple_price)
+plot(diff(log(apple_price)), type = "l", main = "Log-transformed data")
+```
+```{r}
+# Moving average on ln of stock price
+apple_difflnprice <- diff(apple_lnprice,1)
+```
+
+```{r}
+#Dickey-Fuller Test
+adf.test(apple_price)
+adf.test(apple_lnprice)
+adf.test(apple_difflnprice)
+```
+
+```{r}
+#ACF, PACF 
+acf(apple_lnprice, lag.max=50, main="ACF plot of Apple stock")
+pacf(apple_lnprice, lag.max=50, main="PACF plot of Apple stock")
+```
+
+```{r}
+# Run Auto Arima to determine best Arima Model
+arima_apple <- auto.arima(apple_price)
+```
+
+```{r}
+# Forecast Using Forecast function on Arima Model
+forecast_apple <- forecast(arima_apple, h=12)
+plot(forecast_apple)
+```
+```{r}
+# Summarize Results
+summary(forecast_apple)
+```
+
+```{r}
+# AMGEN STOCK
+amgen_price <- ts(amgen$Close, start = c(2015,1), end = c(2020,4), frequency = 12)
+plot(amgen_price, type = "l")
+
+plot(diff(amgen_price), type = "l", main = "Original data")
+```
+
+```{r}
+# Decompose Amgen Data
+plot(decompose(amgen_price))
+```
+
+```{r}
+# Convert to ln format
+amgen_lnprice <- log(amgen_price)
+plot(diff(log(amgen_price)), type = "l", main = "Log-transformed data")
+```
+
+```{r}
+# Moving average on ln of stock price
+amgen_difflnprice <- diff(amgen_lnprice,1)
+```
+
+```{r}
+#Dickey-Fuller Test
+adf.test(amgen_price)
+adf.test(amgen_lnprice)
+adf.test(amgen_difflnprice)
+```
+
+```{r}
+#ACF, PACF 
+acf(amgen_lnprice, lag.max=50, main="ACF plot of Amgen stock")
+pacf(amgen_lnprice, lag.max=50, main="PACF plot of Amgen stock")
+```
+
+```{r}
+# Run Auto Arima to determine best Arima Model
+arima_amgen <- auto.arima(amgen_price)
+```
+
+```{r}
+# Forecast Using Forecast function on Arima Model
+forecast_amgen <- forecast(arima_amgen, h=12)
+plot(forecast_amgen)
+```
+
+```{r}
+# Summarize Results
+summary(forecast_amgen)
+```
+
+```{r}
+# COMCAST STOCK
+com_price <- ts(comcast$Close, start = c(2015,1), end = c(2020,4), frequency = 12)
+plot(com_price, type = "l")
+
+plot(diff(com_price), type = "l", main = "Original data")
+```
+
+
+```{r}
+# Decompose Comcast Data
+plot(decompose(com_price))
+```
+
+```{r}
+# Convert to ln format
+com_lnprice <- log(com_price)
+plot(diff(log(com_price)), type = "l", main = "Log-transformed data")
+```
+
+```{r}
+# Moving average on ln of stock price
+com_difflnprice <- diff(com_lnprice,1)
+```
+
+```{r}
+#Dickey-Fuller Test
+adf.test(com_price)
+adf.test(com_lnprice)
+adf.test(com_difflnprice)
+```
+
+```{r}
+#ACF, PACF 
+acf(com_lnprice, lag.max=50, main="ACF plot of Comcast stock")
+pacf(com_lnprice, lag.max=50, main="PACF plot of Comcast stock")
+```
+
+```{r}
+# Run Auto Arima to determine best Arima Model
+arima_comcast <- auto.arima(com_price)
+```
+
+```{r}
+# Forecast Using Forecast function on Arima Model
+forecast_comcast <- forecast(arima_comcast, h=12)
+plot(forecast_comcast)
+```
+```{r}
+# Summarize Results
+summary(forecast_comcast)
+```
+
+```{r}
+# GILEAD SCIENCES STOCK
+gil_price <- ts(gilead$Close, start = c(2015,1), end = c(2020,4), frequency = 12)
+plot(gil_price, type = "l")
+
+plot(diff(gil_price), type = "l", main = "Original data")
+```
+
+```{r}
+# Convert to ln format
+gil_lnprice <- log(gil_price)
+plot(diff(log(gil_price)), type = "l", main = "Log-transformed data")
+
+```
+```{r}
+# Moving average on ln of stock price
+gil_difflnprice <- diff(gil_lnprice,1)
+```
+
+```{r}
+# Decompose Gilead Data
+plot(decompose(gil_price))
+```
+
+```{r}
+# Dickey-Fuller Test
+adf.test(gil_price)
+adf.test(gil_lnprice)
+adf.test(gil_difflnprice)
+```
+```{r}
+# ACF, PACF 
+acf(gil_lnprice, lag.max=50, main="ACF plot of Gilead Sciences stock")
+pacf(gil_lnprice, lag.max=50, main="PACF plot of Gilead Sciences stock")
+```
+
+```{r}
+# Run Auto Arima to determine best Arima Model
+arima_gil <- auto.arima(gil_price)
+```
+
+```{r}
+# Forecast Using Forecast function on Arima Model
+forecast_gil <- forecast(arima_gil, h=12)
+plot(forecast_gil)
+```
+```{r}
+# Summarize Results
+summary(forecast_gil)
+```
+
+```{r}
+# MICROSOFT STOCK
+mic_price <- ts(microsoft$Close, start = c(2015,1), end = c(2020,4), frequency = 12)
+plot(mic_price, type = "l")
+
+plot(diff(mic_price), type = "l", main = "Original data")
+```
+
+```{r}
+# Convert to ln format
+mic_lnprice <- log(mic_price)
+plot(diff(log(mic_price)), type = "l", main = "Log-transformed data")
+```
+
+```{r}
+# Moving average on ln of stock price
+mic_difflnprice <- diff(mic_lnprice,1)
+```
+
+```{r}
+# Decompose Microsoft Data
+plot(decompose(mic_price))
+```
+
+
+```{r}
+#Dickey-Fuller Test
+adf.test(mic_price)
+adf.test(mic_lnprice)
+adf.test(mic_difflnprice)
+```
+
+```{r}
+#ACF, PACF 
+acf(mic_lnprice, lag.max=50, main="ACF plot of Microsoft stock")
+pacf(mic_lnprice, lag.max=50, main="PACF plot of Microsoft stock")
+```
+
+```{r}
+# Run Auto Arima to determine best Arima Model
+arima_mic <- auto.arima(mic_price)
+```
+
+```{r}
+# Forecast Using Forecast function on Arima Model
+forecast_mic <- forecast(arima_mic, h=12)
+plot(forecast_mic)
+```
+```{r}
+# Summarize Results
+summary(forecast_mic)
+```
+
+
+```{r}
+# NETFLIX STOCK
+net_price <- ts(netflix$Close, start = c(2015,1), end = c(2020,4), frequency = 12)
+plot(net_price, type = "l")
+
+plot(diff(net_price), type = "l", main = "Original data")
+```
+
+```{r}
+# Convert to ln format
+net_lnprice <- log(net_price)
+plot(diff(log(net_price)), type = "l", main = "Log-transformed data")
+```
+
+```{r}
+# Moving average on ln of stock price
+net_difflnprice <- diff(net_lnprice,1)
+```
+
+```{r}
+# Decompose Netflix Data
+plot(decompose(net_price))
+```
+
+
+```{r}
+#Dickey-Fuller Test
+adf.test(net_price)
+adf.test(net_lnprice)
+adf.test(net_difflnprice)
+```
+
+```{r}
+#ACF, PACF 
+acf(net_lnprice, lag.max=50, main="ACF plot of Netflix stock")
+pacf(net_lnprice, lag.max=50, main="PACF plot of Netflix stock")
+```
+
+```{r}
+# Run Auto Arima to determine best Arima Model
+arima_net <- auto.arima(net_price)
+```
+
+```{r}
+# Forecast Using Forecast function on Arima Model
+forecast_net <- forecast(arima_net, h=12)
+plot(forecast_net)
+```
+```{r}
+# Summarize Results
+summary(forecast_net)
+```
+
+
+
+```{r}
+# Drop Columns for FB Prophet & Rename them
+
+app_drop = subset(app_drop, select= -c(Open, High, Low, Adj.Close, Volume))
+amg_drop = subset(amg_drop, select= -c(Open, High, Low, Adj.Close, Volume))
+com_drop = subset(com_drop, select= -c(Open, High, Low, Adj.Close, Volume))
+gil_drop = subset(gil_drop, select= -c(Open, High, Low, Adj.Close, Volume))
+mic_drop = subset(mic_drop, select= -c(Open, High, Low, Adj.Close, Volume))
+net_drop = subset(net_drop, select= -c(Open, High, Low, Adj.Close, Volume))
+```
+
+```{r}
+# Change Column Names for Prophet to run
+
+names(app_drop)[names(app_drop) == "Date"] <- "ds"
+names(app_drop)[names(app_drop) == "Close"] <- "y"
+
+names(amg_drop)[names(amg_drop) == "Date"] <- "ds"
+names(amg_drop)[names(amg_drop) == "Close"] <- "y"
+
+names(com_drop)[names(com_drop) == "Date"] <- "ds"
+names(com_drop)[names(com_drop) == "Close"] <- "y"
+
+names(gil_drop)[names(gil_drop) == "Date"] <- "ds"
+names(gil_drop)[names(gil_drop) == "Close"] <- "y"
+
+names(mic_drop)[names(mic_drop) == "Date"] <- "ds"
+names(mic_drop)[names(mic_drop) == "Close"] <- "y"
+
+names(net_drop)[names(net_drop) == "Date"] <- "ds"
+names(net_drop)[names(net_drop) == "Close"] <- "y"
+
+head(app_drop,5)
+head(amg_drop,5)
+head(com_drop,5)
+head(gil_drop,5)
+head(mic_drop,5)
+head(net_drop,5)
+```
+
+
+
+
+```{r}
+# Apple Forecast
+
+m1 <- prophet(app_drop)
+
+future1 <- make_future_dataframe(m1, periods = 365)
+tail(future1)
+
+forecast1 <- predict(m1, future1)
+tail(forecast1[c('ds', 'yhat', 'yhat_lower', 'yhat_upper')])
+
+forecast_plot1 <- plot(m1, forecast1, xlabel = 'Date', ylabel = "Closing Price")
+forecast_plot1
+```
+```{r}
+# Amgen Forecast
+m2 <- prophet(amg_drop)
+
+future2 <- make_future_dataframe(m2, periods = 365)
+tail(future2)
+
+forecast2 <- predict(m2, future2)
+tail(forecast2[c('ds', 'yhat', 'yhat_lower', 'yhat_upper')])
+
+forecast_plot2 <- plot(m2, forecast2, xlabel = 'Date', ylabel = "Closing Price")
+forecast_plot2
+```
+
+```{r}
+# Comcast Forecast
+m3 <- prophet(com_drop)
+
+future3 <- make_future_dataframe(m3, periods = 365)
+tail(future3)
+
+forecast3 <- predict(m3, future3)
+tail(forecast3[c('ds', 'yhat', 'yhat_lower', 'yhat_upper')])
+
+forecast_plot3 <- plot(m3, forecast3, xlabel = 'Date', ylabel = "Closing Price")
+forecast_plot3
+```
+
+```{r}
+# Gilead Forecast
+m4 <- prophet(gil_drop)
+
+future4 <- make_future_dataframe(m4, periods = 365)
+tail(future4)
+
+forecast4 <- predict(m4, future4)
+tail(forecast4[c('ds', 'yhat', 'yhat_lower', 'yhat_upper')])
+
+forecast_plot4 <- plot(m4, forecast4, xlabel = 'Date', ylabel = "Closing Price")
+forecast_plot4
+```
+
+```{r}
+# Microsoft Forecast
+m5 <- prophet(mic_drop)
+
+future5 <- make_future_dataframe(m5, periods = 365)
+tail(future5)
+
+forecast5 <- predict(m5, future5)
+tail(forecast5[c('ds', 'yhat', 'yhat_lower', 'yhat_upper')])
+
+forecast_plot5 <- plot(m5, forecast5, xlabel = 'Date', ylabel = "Closing Price")
+forecast_plot5
+```
+
+```{r}
+# Netflix Forecast
+m6 <- prophet(net_drop)
+
+future6 <- make_future_dataframe(m6, periods = 365)
+tail(future6)
+
+forecast6 <- predict(m6, future6)
+tail(forecast6[c('ds', 'yhat', 'yhat_lower', 'yhat_upper')])
+
+forecast_plot6 <- plot(m6, forecast6, xlabel = 'Date', ylabel = "Closing Price")
+forecast_plot6
+```
+
+
+```{r}
+# Apple Evaluation
+
+app_cv <- cross_validation(m1, initial = 730, period = 180, horizon = 365, units = 'days')
+head(app_cv)
+```
+
+```{r}
+app_perf <- performance_metrics(app_cv)
+head(app_perf)
+```
+
+```{r}
+plot_cross_validation_metric(app_cv, metric = 'mape')
+```
+```{r}
+# Amgen Evaluation
+amg_cv <- cross_validation(m2, initial = 730, period = 180, horizon = 365, units = 'days')
+head(amg_cv)
+```
+
+```{r}
+amg_perf <- performance_metrics(amg_cv)
+head(amg_perf)
+```
+
+```{r}
+plot_cross_validation_metric(amg_cv, metric = 'mape')
+```
+```{r}
+# Comcast Evaluation
+com_cv <- cross_validation(m3, initial = 730, period = 180, horizon = 365, units = 'days')
+head(com_cv)
+```
+
+```{r}
+com_perf <- performance_metrics(com_cv)
+head(com_perf)
+```
+
+```{r}
+plot_cross_validation_metric(com_cv, metric = 'mape')
+```
+
+```{r}
+# Gilead Evaluation
+gil_cv <- cross_validation(m4, initial = 730, period = 180, horizon = 365, units = 'days')
+head(gil_cv)
+```
+
+```{r}
+gil_perf <- performance_metrics(gil_cv)
+head(gil_perf)
+```
+
+```{r}
+plot_cross_validation_metric(gil_cv, metric = 'mape')
+```
+
+```{r}
+# Microsoft Evaluation
+mic_cv <- cross_validation(m5, initial = 730, period = 180, horizon = 365, units = 'days')
+head(mic_cv)
+```
+
+```{r}
+mic_perf <- performance_metrics(mic_cv)
+head(mic_perf)
+```
+
+```{r}
+plot_cross_validation_metric(mic_cv, metric = 'mape')
+```
+
+```{r}
+# Netflix Evaluation
+net_cv <- cross_validation(m6, initial = 730, period = 180, horizon = 365, units = 'days')
+head(net_cv)
+```
+
+```{r}
+net_perf <- performance_metrics(net_cv)
+head(net_perf)
+```
+
+```{r}
+plot_cross_validation_metric(net_cv, metric = 'mape')
+```
