@@ -5,7 +5,7 @@ This repository contains the R Markdown, and knitted PDF of the markdown file fo
 
 The data is in it's own folder within the Lab 3 folder, this is so that there is no requirement to use a local working directory import the csv files and allows for the app to be launched online instead of just run locally on R Studio. 
 
-I recommend keeping the CSV files in this sub folder so the application can be easily replicated.
+I recommend keeping the CSV files in the "data" folder so the application can be easily replicated.
 
 The link to the app is https://filipe-soares.shinyapps.io/Lab3/
 
