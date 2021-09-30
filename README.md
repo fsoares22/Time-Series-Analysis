@@ -7,5 +7,6 @@ The data is in it's own folder within the Lab 3 folder, this is so that there is
 I recommend keeping the CSV files in the "data" folder so the application can be easily replicated.
 
 The link to the app is https://filipe-soares.shinyapps.io/Lab3/
+It may take a moment to load the plots initially but once the app has completely loaded the plots will appear as each company is selected from the dropdowns. 
 
 Enjoy!
